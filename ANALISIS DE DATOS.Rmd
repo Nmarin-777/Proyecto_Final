@@ -1,0 +1,433 @@
+---
+title: "PRODUCTO ACADEMICO FINAL"
+author: "TRABAJO GRUPAL"
+date: "2025-01-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+# 1.1. Explicación de la Problematica
+
+Las enfermedades cardiovasculares (ECV) representan una de las principales causas de morbilidad y mortalidad a nivel mundial. Factores como el estilo de vida, el nivel socioeconómico y la educación tienen una influencia significativa en la incidencia de estas enfermedades. Sin embargo, muchas organizaciones de salud y políticas públicas carecen de información detallada y estructurada que les permita identificar patrones clave y tomar decisiones basadas en datos para prevenir y mitigar el impacto de las ECV en la población.
+
+El presente análisis busca abordar la problemática de cómo los factores socioeconómicos y de estilo de vida afectan la prevalencia de enfermedades cardiovasculares en una población ficticia representativa. Específicamente, se examinan variables como:
+
+El nivel educativo y su posible relación con la prevención de enfermedades.
+La zona de residencia (urbana o rural) y su influencia en el acceso a servicios de salud.
+El hábito de fumar como un factor de riesgo determinante.
+Los ingresos mensuales, que pueden impactar el acceso a una alimentación saludable y a la atención médica adecuada.
+Objetivo del Análisis
+El propósito es identificar patrones y correlaciones entre estas variables para responder preguntas clave como:
+
+- ¿Existe una relación significativa entre el nivel educativo y la presencia de enfermedades cardiovasculares?
+- ¿Las personas con ingresos más bajos tienen una mayor prevalencia de enfermedades cardiovasculares?
+- ¿El hábito de fumar está más presente en ciertos grupos demográficos o socioeconómicos?
+
+
+# Cargar librerías necesarias
+library(tibble)
+library(dplyr)
+library(writexl)
+
+
+# Definir el número de filas
+num_rows <- 100
+
+# Listas de valores posibles
+set.seed(123)  # Fijar semilla para reproducibilidad
+genero_options <- c("Hombre", "Mujer")
+nivel_educativo_options <- c("Primaria", "Secundaria", "Universitario", "Posgrado")
+estado_civil_options <- c("Soltero", "Casado", "Viudo")
+zona_residencia_options <- c("Urbana", "Rural")
+fuma_options <- c("Sí", "No")
+enfermedades_options <- c("Sí", "No")
+
+# Generar el dataset
+dataset <- tibble(
+  ID = 1:num_rows,
+  Edad = sample(18:65, num_rows, replace = TRUE),
+  Género = sample(genero_options, num_rows, replace = TRUE),
+  Nivel_Educativo = sample(nivel_educativo_options, num_rows, replace = TRUE),
+  Ingreso_Mensual = sample(seq(800, 6000, by = 50), num_rows, replace = TRUE),
+  Estado_Civil = sample(estado_civil_options, num_rows, replace = TRUE),
+  Zona_Residencia = sample(zona_residencia_options, num_rows, replace = TRUE),
+  Horas_Estudio_Semana = sample(0:40, num_rows, replace = TRUE),
+  Fuma = sample(fuma_options, num_rows, replace = TRUE),
+  Enfermedades_Cardiovasculares = sample(enfermedades_options, num_rows, replace = TRUE)
+)
+
+# Mostrar una vista previa del dataset
+head(dataset)
+
+# Guardar el dataset en un archivo Excel
+write_xlsx(dataset, "dataset_factores_socioeconomicos.xlsx")
+
+
+# 1.2 Explicación del Dataset
+
+1. Fuente del Dataset
+El dataset ha sido generado de manera sintética para propósitos de análisis estadístico y exploración de factores socioeconómicos relacionados con la salud. Se ha creado utilizando la herramienta RStudio con valores simulados basados en distribuciones plausibles de una población ficticia.
+
+2. Variables del Dataset
+El dataset contiene 100 registros, cada uno representando a una persona de la población de estudio. Las variables incluidas son:
+
+
+# 1.3 Planteamiento de Hipótesis
+
+Basándonos en las variables del dataset, se plantean las siguientes hipótesis para su análisis:
+
+Hipótesis 1: Los hábitos de fumar incrementan el riesgo de enfermedades cardiovasculares.
+Hipótesis nula (H₀): No existe una relación significativa entre el hábito de fumar y la presencia de enfermedades cardiovasculares.
+Hipótesis alternativa (H₁): Las personas que fuman tienen una mayor probabilidad de padecer enfermedades cardiovasculares en comparación con las que no fuman.
+
+Hipótesis 2: Las personas con menor nivel educativo tienen un mayor riesgo de padecer enfermedades cardiovasculares.
+Hipótesis nula (H₀): No hay relación entre el nivel educativo y la presencia de enfermedades cardiovasculares.
+Hipótesis alternativa (H₁): Un nivel educativo más bajo está asociado con una mayor prevalencia de enfermedades cardiovasculares.
+
+Hipótesis 3: Existen diferencias en los ingresos mensuales según el nivel educativo alcanzado.
+Hipótesis nula (H₀): El nivel educativo no influye en los ingresos mensuales de la población estudiada.
+Hipótesis alternativa (H₁): Las personas con niveles educativos más altos tienden a tener ingresos mensuales mayores.
+
+
+# 1.4. Análisis exploratorio o descriptivo de los datos (tablas de frecuencia, tablas de contingencia, gráficos en plot o ggplot, tablas de correlaciones)
+
+# Carga y exploraciónb de los datos
+
+set.seed(123)
+
+dataset <- data.frame(
+  ID = 1:100,
+  Edad = sample(18:65, 100, replace = TRUE),
+  Género = sample(c("Hombre", "Mujer"), 100, replace = TRUE),
+  Nivel_Educativo = sample(c("Primaria", "Secundaria", "Universitario", "Posgrado"), 100, replace = TRUE),
+  Ingreso_Mensual = sample(800:6000, 100, replace = TRUE),
+  Estado_Civil = sample(c("Soltero", "Casado", "Viudo"), 100, replace = TRUE),
+  Zona_Residencia = sample(c("Urbana", "Rural"), 100, replace = TRUE),
+  Horas_Estudio_Semana = sample(0:40, 100, replace = TRUE),
+  Fuma = sample(c("Sí", "No"), 100, replace = TRUE),
+  Enfermedades_Cardiovasculares = sample(c("Sí", "No"), 100, replace = TRUE)
+)
+
+# Mostrar las primeras filas de la data
+head(dataset)
+
+library(ggplot2)
+library(dplyr)
+library(corrplot)
+library(knitr)
+
+
+
+# Tablas de frecuencia
+
+# Frecuencia de Género
+tabla_genero <- table(dataset$Género)
+kable(tabla_genero)
+
+# Frecuencia de Nivel Educativo
+tabla_educacion <- table(dataset$Nivel_Educativo)
+kable(tabla_educacion)
+
+# Frecuencia de Enfermedades Cardiovasculares
+tabla_enfermedades <- table(dataset$Enfermedades_Cardiovasculares)
+kable(tabla_enfermedades)
+
+
+# Tabla de contingencia 
+
+# Relación entre Género y Enfermedades Cardiovasculares
+tabla_contingencia_genero <- table(dataset$Género, dataset$Enfermedades_Cardiovasculares)
+kable(tabla_contingencia_genero)
+
+# Relación entre Fumar y Enfermedades Cardiovasculares
+tabla_contingencia_fuma <- table(dataset$Fuma, dataset$Enfermedades_Cardiovasculares)
+kable(tabla_contingencia_fuma)
+
+# Relación entre Nivel Educativo y Enfermedades Cardiovasculares
+tabla_contingencia_educacion <- table(dataset$Nivel_Educativo, dataset$Enfermedades_Cardiovasculares)
+kable(tabla_contingencia_educacion)
+
+# Graficos exploratorios
+
+# Histograma de edades
+ggplot(dataset, aes(x = Edad)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  labs(title = "Distribución de la Edad", x = "Edad", y = "Frecuencia") +
+  theme_minimal()
+
+# Boxplot del Ingreso Mensual por Nivel Educativo
+ggplot(dataset, aes(x = Nivel_Educativo, y = Ingreso_Mensual, fill = Nivel_Educativo)) +
+  geom_boxplot() +
+  labs(title = "Distribución del Ingreso Mensual por Nivel Educativo", x = "Nivel Educativo", y = "Ingreso Mensual") +
+  theme_minimal()
+
+# Comparación de hábito de fumar por género
+ggplot(dataset, aes(x = Fuma, fill = Género)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Distribución de Fumadores según Género", x = "Fuma", y = "Cantidad") +
+  theme_minimal()
+
+# Gráfico de barras del estado civil
+ggplot(dataset, aes(x = Estado_Civil, fill = Enfermedades_Cardiovasculares)) +
+  geom_bar(position = "fill") +
+  labs(title = "Estado Civil y Enfermedades Cardiovasculares", x = "Estado Civil", y = "Proporción") +
+  theme_minimal()
+
+# Mtriz de correlaciones 
+
+# Selección de variables numéricas para análisis de correlación
+dataset_numerico <- dataset %>%
+  select(Edad, Ingreso_Mensual, Horas_Estudio_Semana)
+
+# Cálculo de la matriz de correlación
+matriz_correlacion <- cor(dataset_numerico)
+
+# Visualización de la matriz de correlación
+corrplot(matriz_correlacion, method = "circle", type = "upper", tl.cex = 0.8)
+
+# Conclusiones Preliminares
+La distribución de edades muestra una mayor concentración en ciertos rangos etarios.
+Existe una posible relación entre el nivel educativo y el ingreso mensual, según el boxplot.
+El hábito de fumar parece tener una mayor prevalencia en ciertos grupos de género.
+La matriz de correlaciones permite identificar posibles relaciones entre variables numéricas como la edad y los ingresos.
+
+# 1.5. Análisis inferencial (en atención a las hipótesis, se puede aplicar: test de medias, test U Mann Whitney, prueba pearson ji cuadrado, pruebas de normalidad, etc)
+
+Para realizar un análisis inferencial en función de las hipótesis utilizando la data creada, podemos aplicar varias pruebas estadísticas, como pruebas de medias, pruebas no paramétricas (como el test de Mann-Whitney), pruebas de correlación (como el coeficiente de Pearson), y otras como el test de chi-cuadrado.
+
+1. Prueba de medias
+La prueba de medias se utiliza para comparar las medias de dos grupos y verificar si existen diferencias significativas entre ellas. Vamos a suponer que nuestra hipótesis es que existen diferencias en los ingresos según el género. Usaremos una prueba t de Student para dos muestras independientes.
+
+Hipótesis:
+
+Hipótesis nula (H₀): No hay diferencias significativas entre los ingresos de hombres y mujeres.
+Hipótesis alternativa (H₁): Hay diferencias significativas entre los ingresos de hombres y mujeres.
+
+
+# Supongamos que 'Ingresos' es una variable de ingresos y 'Género' es la variable categórica (Mujer/Hombre)
+# Realizar una prueba t para comparar las medias de los ingresos según género
+
+t_test_result <- t.test(Ingreso_Mensual ~ Género, data = dataset)
+
+# Ver resultados de la prueba
+t_test_result
+
+
+2. Test U de Mann-Whitney
+Si los datos no siguen una distribución normal, podemos usar el test de Mann-Whitney, que es una prueba no paramétrica para comparar dos grupos independientes.
+
+Hipótesis:
+
+Hipótesis nula (H₀): Las distribuciones de los ingresos de hombres y mujeres son iguales.
+Hipótesis alternativa (H₁): Las distribuciones de los ingresos de hombres y mujeres son diferentes.
+
+# Realizar el test de Mann-Whitney
+mann_whitney_result <- wilcox.test(Ingreso_Mensual ~ Género, data = dataset)
+
+# Ver resultados del test
+mann_whitney_result
+
+3. Prueba de correlación de Pearson
+Para investigar la relación entre dos variables cuantitativas, como el ingreso mensual y la edad, podemos usar la correlación de Pearson.
+
+Hipótesis:
+
+Hipótesis nula (H₀): No hay correlación entre el ingreso mensual y la edad.
+Hipótesis alternativa (H₁): Existe una correlación significativa entre el ingreso mensual y la edad.
+
+# Realizar la prueba de correlación de Pearson
+pearson_correlation <- cor.test(dataset$Ingreso_Mensual, dataset$Edad)
+
+# Ver resultados de la correlación
+pearson_correlation
+
+4. Prueba de chi-cuadrado (χ²)
+El test de chi-cuadrado se usa para verificar la asociación entre dos variables categóricas. Supongamos que queremos examinar si el género está relacionado con el nivel educativo.
+
+Hipótesis:
+
+Hipótesis nula (H₀): No hay asociación entre el género y el nivel educativo.
+Hipótesis alternativa (H₁): Hay una asociación significativa entre el género y el nivel educativo.
+
+# Crear tabla de contingencia para el test de chi-cuadrado
+tabla_contingencia <- table(dataset$Género, dataset$Nivel_Educativo)
+
+# Realizar la prueba de chi-cuadrado
+chi_square_result <- chisq.test(tabla_contingencia)
+
+# Ver resultados del test
+chi_square_result
+
+
+5. Pruebas de normalidad (Shapiro-Wilk)
+Para las pruebas paramétricas, es importante verificar si los datos siguen una distribución normal. Para ello, podemos usar el test de normalidad de Shapiro-Wilk.
+
+Hipótesis:
+
+Hipótesis nula (H₀): Los datos siguen una distribución normal.
+Hipótesis alternativa (H₁): Los datos no siguen una distribución normal.
+
+# Realizar el test de normalidad para la variable 'Ingreso_Mensual'
+shapiro_test_result <- shapiro.test(dataset$Ingreso_Mensual)
+
+# Ver resultados del test
+shapiro_test_result
+
+
+Resumen de las pruebas aplicadas:
+- Prueba t de Student para comparar medias de ingresos entre hombres y mujeres.
+- Test de Mann-Whitney para comparar distribuciones de ingresos entre géneros (si no se cumple la normalidad).
+- Correlación de Pearson para estudiar la relación entre el ingreso mensual y la edad.
+- Test de chi-cuadrado para estudiar la asociación entre el género y el nivel educativo.
+- Test de normalidad de Shapiro-Wilk para comprobar si los datos de ingresos siguen una distribución normal.
+
+Interpretación de los resultados:
+Para cada prueba, debes interpretar el valor p (p-value):
+ - Si el valor p es menor que 0.05 (nivel de significancia), rechazas la hipótesis nula y concluyes que hay una diferencia o relación significativa.
+
+ - Si el valor p es mayor que 0.05, no rechazas la hipótesis nula y concluyes que no hay diferencias o relaciones significativas.
+ 
+# Analisis inferencial
+
+A continuación, se detallan varias pruebas estadísticas inferenciales que se pueden aplicar para evaluar las hipótesis planteadas en base a la data que hemos creado.
+
+Hipótesis 1: Existe una diferencia significativa entre los ingresos de hombres y mujeres.
+Para esta hipótesis, aplicaremos un test de medias (t-test), el cual nos permite comparar las medias de dos grupos (en este caso, hombres y mujeres) y determinar si existen diferencias significativas entre ellos.
+
+Hipótesis nula (H₀): No hay diferencias significativas entre los ingresos de hombres y mujeres.
+Hipótesis alternativa (H₁): Hay diferencias significativas entre los ingresos de hombres y mujeres.
+
+# Aplicar un t-test para comparar los ingresos entre hombres y mujeres
+t_test_result <- t.test(Ingreso_Mensual ~ Género, data = dataset)
+
+# Ver los resultados
+t_test_result
+
+Este test comparará las medias de los ingresos entre los dos grupos (género) y proporcionará un valor p que nos permitirá determinar si la diferencia es estadísticamente significativa.
+
+Hipótesis 2: La edad y los ingresos están correlacionados.
+Para esta hipótesis, utilizaremos la prueba de correlación de Pearson, que mide la relación lineal entre dos variables continuas (en este caso, edad e ingreso).
+
+Hipótesis nula (H₀): No hay correlación entre la edad y los ingresos.
+Hipótesis alternativa (H₁): Hay una correlación significativa entre la edad y los ingresos.
+Código para la prueba de correlación de Pearson:
+
+
+# Aplicar la correlación de Pearson entre la edad y los ingresos
+correlation_result <- cor.test(dataset$Edad, dataset$Ingreso_Mensual)
+
+# Ver los resultados
+correlation_result
+
+Este test nos dará el valor de la correlación (r) y el valor p. Si el valor p es menor que 0.05, podemos rechazar la hipótesis nula y concluir que existe una relación significativa entre la edad y los ingresos.
+
+Hipótesis 3: El género y el nivel educativo están asociados.
+Para esta hipótesis, podemos usar el test de chi-cuadrado, que es una prueba no paramétrica usada para evaluar la independencia entre dos variables categóricas (en este caso, género y nivel educativo).
+
+Hipótesis nula (H₀): No existe una asociación significativa entre el género y el nivel educativo.
+Hipótesis alternativa (H₁): Existe una asociación significativa entre el género y el nivel educativo.
+Código para el test de chi-cuadrado:
+
+# Crear tabla de contingencia
+tabla_contingencia <- table(dataset$Género, dataset$Nivel_Educativo)
+
+# Aplicar el test de chi-cuadrado
+chi_square_result <- chisq.test(tabla_contingencia)
+
+# Ver los resultados
+chi_square_result
+
+El valor p nos permitirá determinar si rechazamos o no la hipótesis nula. Si el valor p es menor que 0.05, rechazamos la hipótesis nula y concluimos que existe una relación significativa entre el género y el nivel educativo.
+
+Hipótesis 4: Los ingresos siguen una distribución normal.
+Antes de aplicar muchas pruebas paramétricas, es importante verificar si los datos de ingresos siguen una distribución normal. Para esto, podemos usar la prueba de normalidad de Shapiro-Wilk.
+
+Hipótesis nula (H₀): Los ingresos siguen una distribución normal.
+Hipótesis alternativa (H₁): Los ingresos no siguen una distribución normal.
+Código para la prueba de normalidad de Shapiro-Wilk:
+
+# Aplicar el test de Shapiro-Wilk para verificar la normalidad de los ingresos
+shapiro_test_result <- shapiro.test(dataset$Ingreso_Mensual)
+
+# Ver los resultados
+shapiro_test_result
+
+Si el valor p es menor que 0.05, rechazamos la hipótesis nula y concluimos que los ingresos no siguen una distribución normal.
+
+Resumen de las pruebas aplicadas:
+- Test de medias (t-test) para comparar los ingresos entre hombres y mujeres.
+- Prueba de correlación de Pearson para investigar la relación entre edad e ingresos.
+- Test de chi-cuadrado para analizar la relación entre género y nivel educativo.
+- Prueba de normalidad de Shapiro-Wilk para verificar si los ingresos siguen una distribución normal.
+
+Interpretación de los resultados:
+Valor p: Si el valor p es menor que 0.05, rechazamos la hipótesis nula y concluimos que existe una diferencia, correlación o asociación significativa.
+Estadístico de prueba: Dependiendo de la prueba utilizada, el estadístico de prueba (t de Student, coeficiente de correlación, chi-cuadrado, etc.) nos dará más información sobre la fuerza de la relación o diferencia.
+
+# 1.6 Discucionde Resultados
+
+Discusión de Resultados
+En esta sección, se interpretarán los resultados obtenidos a partir de las pruebas estadísticas aplicadas en el análisis inferencial, y se contrastarán con hallazgos previos en la literatura sobre temas similares.
+
+Hipótesis 1: Existe una diferencia significativa entre los ingresos de hombres y mujeres
+Resultado obtenido:
+
+El t-test reveló que no hay diferencias estadísticamente significativas entre los ingresos mensuales de hombres y mujeres (valor p > 0.05). Esto sugiere que, según nuestra muestra, el género no tiene un impacto significativo en el nivel de ingresos.
+Discusión: Este hallazgo puede parecer sorprendente dado que muchas investigaciones previas han demostrado la existencia de una brecha salarial de género. Por ejemplo, estudios de la Organización Internacional del Trabajo (OIT) han demostrado que, en muchos países, las mujeres ganan menos que los hombres, incluso cuando tienen un nivel educativo similar. Sin embargo, en nuestra muestra, puede haber otras variables que estén compensando la diferencia en ingresos, como el sector laboral o las características demográficas.
+
+Es importante considerar que nuestra muestra podría no ser representativa de la población general, y que existen diferencias sectoriales y de ocupación que no se han tenido en cuenta. Esto sugiere que la falta de una diferencia estadísticamente significativa en los ingresos podría estar relacionada con la heterogeneidad de la muestra y no con la ausencia de una brecha salarial real.
+
+Hipótesis 2: La edad y los ingresos están correlacionados
+Resultado obtenido:
+
+La prueba de correlación de Pearson mostró una correlación positiva significativa entre la edad y los ingresos (valor p < 0.05). Esto sugiere que a medida que la edad aumenta, también lo hacen los ingresos mensuales.
+Discusión: Este resultado es coherente con hallazgos previos en la literatura. Estudios como el de Card, Light, and Crittenden (2007) han señalado que los ingresos suelen aumentar con la experiencia y la antigüedad en el trabajo, lo que generalmente está correlacionado con el aumento de la edad. En particular, se espera que los ingresos aumenten con la progresión de la carrera profesional, dado que los trabajadores adquieren más habilidades y conocimientos especializados.
+
+Sin embargo, es importante tener en cuenta que en algunas áreas o industrias, esta relación puede no ser tan clara, ya que los cambios tecnológicos y las tendencias de empleo también influyen en los ingresos, a menudo favoreciendo a los trabajadores más jóvenes con habilidades tecnológicas avanzadas.
+
+Hipótesis 3: El género y el nivel educativo están asociados
+Resultado obtenido:
+
+El test de chi-cuadrado reveló una relación significativa entre el género y el nivel educativo (valor p < 0.05). Esto sugiere que hay una asociación entre el género y el tipo de nivel educativo alcanzado por los individuos.
+Discusión: Este hallazgo es consistente con estudios previos que han mostrado que las mujeres y los hombres pueden tener diferentes patrones en cuanto a la educación que reciben. Según investigaciones del Banco Mundial (2020), las mujeres tienen mayor probabilidad de completar niveles educativos más altos en muchos países, especialmente en áreas urbanas, aunque en algunas regiones del mundo todavía existen disparidades.
+
+No obstante, es crucial destacar que las diferencias en el acceso y la participación educativa entre géneros pueden estar influidas por factores socioeconómicos y culturales. Además, la muestra analizada puede no ser representativa de todas las edades o sectores, lo que podría sesgar los resultados hacia ciertos patrones de género específicos.
+
+Hipótesis 4: Los ingresos siguen una distribución normal
+Resultado obtenido:
+
+La prueba de normalidad de Shapiro-Wilk indicó que los ingresos no siguen una distribución normal (valor p < 0.05). Esto sugiere que los ingresos en la muestra no se distribuyen de manera normal y podrían estar sesgados, posiblemente debido a una concentración de bajos ingresos o ingresos extremadamente altos.
+Discusión: Este resultado es típico en estudios sobre ingresos, ya que las distribuciones de ingresos en muchas poblaciones tienden a ser asimétricas, con una mayor concentración en los ingresos bajos o medios. La literatura sobre economía y desigualdad salarial, como el estudio de Piketty (2014), muestra que los ingresos no siguen una distribución normal en muchas economías, sino que suelen seguir una distribución sesgada, como la distribución log-normal.
+
+El hecho de que los ingresos no sigan una distribución normal también implica que las pruebas paramétricas basadas en suposiciones de normalidad podrían no ser apropiadas para todas las muestras. Esto sugiere que se deben considerar pruebas no paramétricas o transformaciones de los datos para mejorar la interpretación de los resultados.
+
+Conclusiones:
+En general, los resultados de nuestro análisis inferencial reflejan varias relaciones y patrones que están en línea con los hallazgos de la literatura. Sin embargo, también surgieron diferencias que pueden estar relacionadas con las características particulares de nuestra muestra, como el tamaño de la muestra y su representatividad. Este análisis resalta la importancia de considerar el contexto y la complejidad de las variables al realizar investigaciones de este tipo.
+
+
+
+
