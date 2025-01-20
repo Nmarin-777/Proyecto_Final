@@ -1,6 +1,15 @@
 ---
 title: "PRODUCTO ACADEMICO FINAL"
 author: "TRABAJO GRUPAL"
+ Integrantes
+ 
+# Jimm Danny Campos Bravo
+# Nicolás Augusto Marín Lora
+# Alex Lenin Zapana Apaza
+# Pamela Verenice Jimenez Soncco
+# Carmen Rosa Pata Cardenas
+
+
 date: "2025-01-20"
 output: html_document
 ---
